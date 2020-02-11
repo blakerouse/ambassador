@@ -106,6 +106,7 @@ class V2Cluster(dict):
         endpoints = []
         targetlist = cluster.get('targets', [])
 
+        print("DEBUG targetlist: %s" % targetlist)
         if len(targetlist) > 0:
             for idx, target in enumerate(targetlist):
                 result = []
