@@ -91,6 +91,7 @@ class IRHTTPMapping (IRBaseMapping):
         # Do not include regex_headers.
         # Do not include rewrite.
         "service": True,
+        "fallbackServices": True,
         "shadow": True,
         "connect_timeout_ms": True,
         "cluster_idle_timeout_ms": True,
