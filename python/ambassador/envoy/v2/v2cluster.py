@@ -42,11 +42,7 @@ class V2Cluster(dict):
             'connect_timeout':"%0.3fs" % (float(cluster.connect_timeout_ms) / 1000.0),
             'load_assignment': {
                 'cluster_name': cluster.name,
-                'endpoints': [
-                    {
-                        'lb_endpoints': self.get_endpoints(cluster)
-                    }
-                ]
+                'endpoints': self.get_endpoints(cluster),
             },
             'dns_lookup_family': dns_lookup_family
         }
