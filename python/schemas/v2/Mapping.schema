@@ -23,6 +23,7 @@
         "prefix": { "type": "string" },
         "prefix_regex": { "type": "boolean" },
         "service": { "type": "string" },
+        "fallbackServices": { "type": "array", "items": { "type": "string" } },
         "add_request_headers": { "$ref": "#/definitions/mapStrObj" },
         "add_response_headers": { "$ref": "#/definitions/mapStrObj" },
         "add_linkerd_headers": { "type": "boolean" },
