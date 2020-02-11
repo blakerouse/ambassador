@@ -195,6 +195,7 @@ class IRHTTPMappingGroup (IRBaseMappingGroup):
                             location=mapping.location,
                             service=mapping.service,
                             resolver=mapping.resolver,
+                            fallbackServices=mapping.get('fallbackServices', None),
                             ctx_name=mapping.get('tls', None),
                             host_rewrite=mapping.get('host_rewrite', False),
                             enable_ipv4=mapping.get('enable_ipv4', None),

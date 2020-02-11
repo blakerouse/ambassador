@@ -42,7 +42,7 @@ class IRCluster (IRResource):
                  location: str,  # REQUIRED
 
                  service: str,   # REQUIRED
-                 fallbackServices: Optional[str] = None,
+                 fallbackServices: Optional[list] = None,
                  resolver: Optional[str] = None,
                  connect_timeout_ms: Optional[int] = 3000,
                  cluster_idle_timeout_ms: Optional[int] = None,
