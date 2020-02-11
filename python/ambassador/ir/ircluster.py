@@ -289,10 +289,8 @@ class IRCluster (IRResource):
             else:
                 new_args['tls_context'] = IRTLSContext.null_context(ir=ir)
 
-        print("DEBUG fallbackServices: %s" % fallbackServices)
         if fallbackServices:
             new_args["urls"].extend(fallbackServices)
-        print("DEBUG urls: %s" % new_args["urls"])
 
         if rkey == '-override-':
             rkey = name
@@ -332,7 +330,6 @@ class IRCluster (IRResource):
             # Great.
             self.targets.append(main_targets)
 
-        print("DEBUG self.urls: %s" % self.urls)
         for url in self.urls[1:]:
             p = urllib.parse.urlparse('random://' + url)
             hostname = p.hostname
@@ -340,9 +337,7 @@ class IRCluster (IRResource):
                 port = p.port
             except ValueError as e:
                 continue
-            print("DEBUG hostname:port: %s:%s" % (hostname, port))
             other_targets = ir.resolve_targets(self, self._resolver, hostname, self._namespace, port)
-            print("DEBUG other_targets: %s" % other_targets)
             if other_targets:
                 self.targets.append(other_targets)
 
