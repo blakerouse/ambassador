@@ -107,19 +107,25 @@ class V2Cluster(dict):
         self.update(fields)
 
     def get_endpoints(self, cluster: IRCluster):
-        result = []
-
+        endpoints = []
         targetlist = cluster.get('targets', [])
 
         if len(targetlist) > 0:
-            for target in targetlist:
-                address = {
-                    'address': target['ip'],
-                    'port_value': target['port'],
-                    'protocol': 'TCP'  # Yes, really. Envoy uses the TLS context to determine whether to originate TLS.
-                }
-                result.append({'endpoint': {'address': {'socket_address': address}}})
+            for idx, target in enumerate(targetlist):
+                result = []
+                for endpoint in target:
+                    address = {
+                        'address': target['ip'],
+                        'port_value': target['port'],
+                        'protocol': 'TCP'  # Yes, really. Envoy uses the TLS context to determine whether to originate TLS.
+                    }
+                    result.append({'endpoint': {'address': {'socket_address': address}}})
+                endpoints.append({
+                    'lb_endpoints': result,
+                    'priority': idx,
+                })
         else:
+            result = []
             for u in cluster.urls:
                 p = urllib.parse.urlparse(u)
                 address = {
@@ -129,7 +135,10 @@ class V2Cluster(dict):
                 if p.scheme:
                     address['protocol'] = p.scheme.upper()
                 result.append({'endpoint': {'address': {'socket_address': address}}})
-        return result
+            endpoints.append({
+                'lb_endpoints': result,
+            })
+        return endpoints
 
     def get_circuit_breakers(self, cluster: IRCluster):
         cluster_circuit_breakers = cluster.get('circuit_breakers', None)

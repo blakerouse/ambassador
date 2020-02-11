@@ -42,6 +42,7 @@ class IRCluster (IRResource):
                  location: str,  # REQUIRED
 
                  service: str,   # REQUIRED
+                 fallbackServices: Optional[str] = None,
                  resolver: Optional[str] = None,
                  connect_timeout_ms: Optional[int] = 3000,
                  cluster_idle_timeout_ms: Optional[int] = None,
@@ -288,6 +289,9 @@ class IRCluster (IRResource):
             else:
                 new_args['tls_context'] = IRTLSContext.null_context(ir=ir)
 
+        if fallbackServices:
+            new_args["urls"].extend(fallbackServices)
+
         if rkey == '-override-':
             rkey = name
 
@@ -319,12 +323,25 @@ class IRCluster (IRResource):
             return False
 
         # Resolve our actual targets.
-        targets = ir.resolve_targets(self, self._resolver, self._hostname, self._namespace, self._port)
+        main_targets = ir.resolve_targets(self, self._resolver, self._hostname, self._namespace, self._port)
 
-        if targets:
+        self.targets = []
+        if main_targets:
             # Great.
-            self.targets = targets
-        else:
+            self.targets.append(main_targets)
+
+        for url in self.urls[1:]:
+            p = urllib.parse.urlparse('random://' + service)
+            hostname = p.hostname
+            try:
+                port = p.port
+            except ValueError as e:
+                continue
+            other_targets = ir.resolve_targets(self, self._resolver, hostname, self._namespace, port)
+            if other_targets:
+                self.targets.append(other_targets)
+
+        if not self.targets:
             self.post_error("no endpoints found, disabling cluster")
 
             # This is a legit error. If we can't find _anything_ to route to, something is
