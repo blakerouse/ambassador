@@ -187,39 +187,41 @@ class WatchHook:
                 self.logger.debug(f'-> resolver {resolver}')
 
                 if resolver:
-                    svc = Service(logger, mapping.service, ctx_name)
+                    services = [mapping.service] + mapping.get('fallbackServices', [])
+                    for service in services:
+                        svc = Service(logger, service, ctx_name)
 
-                    if resolver.kind == 'ConsulResolver':
-                        self.logger.debug(f'Mapping {mname} uses Consul resolver {res_name}')
+                        if resolver.kind == 'ConsulResolver':
+                            self.logger.debug(f'Mapping {mname} uses Consul resolver {res_name}')
 
-                        # At the moment, we stuff the resolver's datacenter into the association
-                        # ID for this watch. The ResourceFetcher relies on that.
+                            # At the moment, we stuff the resolver's datacenter into the association
+                            # ID for this watch. The ResourceFetcher relies on that.
 
-                        self.consul_watches.append(
-                            {
-                                "id": resolver.datacenter,
-                                "consul-address": resolver.address,
-                                "datacenter": resolver.datacenter,
-                                "service-name": svc.hostname
-                            }
-                        )
-                    elif resolver.kind == 'KubernetesEndpointResolver':
-                        host = svc.hostname
-                        namespace = Config.ambassador_namespace
+                            self.consul_watches.append(
+                                {
+                                    "id": resolver.datacenter,
+                                    "consul-address": resolver.address,
+                                    "datacenter": resolver.datacenter,
+                                    "service-name": svc.hostname
+                                }
+                            )
+                        elif resolver.kind == 'KubernetesEndpointResolver':
+                            host = svc.hostname
+                            namespace = Config.ambassador_namespace
 
-                        if not host:
-                            # This is really kind of impossible.
-                            self.logger.error(f"KubernetesEndpointResolver {res_name} has no 'hostname'")
-                            continue
+                            if not host:
+                                # This is really kind of impossible.
+                                self.logger.error(f"KubernetesEndpointResolver {res_name} has no 'hostname'")
+                                continue
 
-                        if "." in host:
-                            (host, namespace) = host.split(".", 2)[0:2]
+                            if "." in host:
+                                (host, namespace) = host.split(".", 2)[0:2]
 
-                        self.logger.debug(f'...kube endpoints: svc {svc.hostname} -> host {host} namespace {namespace}')
+                            self.logger.debug(f'...kube endpoints: svc {svc.hostname} -> host {host} namespace {namespace}')
 
-                        self.add_kube_watch(f"endpoint", "endpoints", namespace,
-                                            label_selector=global_label_selector,
-                                            field_selector=f"metadata.name={host}")
+                            self.add_kube_watch(f"endpoint", "endpoints", namespace,
+                                                label_selector=global_label_selector,
+                                                field_selector=f"metadata.name={host}")
 
         for secret_key, secret_info in self.fake.secret_recorder.needed.items():
             self.logger.debug(f'need secret {secret_info.name}.{secret_info.namespace}')
