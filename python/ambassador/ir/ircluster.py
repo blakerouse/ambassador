@@ -331,7 +331,7 @@ class IRCluster (IRResource):
             self.targets.append(main_targets)
 
         for url in self.urls[1:]:
-            p = urllib.parse.urlparse('random://' + service)
+            p = urllib.parse.urlparse('random://' + url)
             hostname = p.hostname
             try:
                 port = p.port
