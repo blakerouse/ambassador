@@ -115,8 +115,8 @@ class V2Cluster(dict):
                 result = []
                 for endpoint in target:
                     address = {
-                        'address': target['ip'],
-                        'port_value': target['port'],
+                        'address': endpoint['ip'],
+                        'port_value': endpoint['port'],
                         'protocol': 'TCP'  # Yes, really. Envoy uses the TLS context to determine whether to originate TLS.
                     }
                     result.append({'endpoint': {'address': {'socket_address': address}}})
